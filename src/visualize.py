@@ -29,10 +29,17 @@ def plot_metric_comparison(results, metric, save_path):
     values = [r[metric] for r in results]
 
     plt.figure(figsize=(12, 5))
-    plt.bar(labels, values)
+    bars = plt.bar(labels, values)
+
     plt.xticks(rotation=45, ha="right")
     plt.ylabel(metric.upper())
     plt.title(f"{metric.upper()} Comparison")
+
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, height, f"{height:.4f}", ha='center', va='bottom')
+
     plt.tight_layout()
     plt.savefig(save_path)
     plt.close()
+
