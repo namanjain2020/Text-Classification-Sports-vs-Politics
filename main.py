@@ -1,6 +1,7 @@
 import random
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import train_test_split
 from src.dataloader import load_data, balance_dataset
 from src.preprocessing import preprocess_corpus
 from src.features import bow_features, tf_idf_features, n_gram_features
@@ -107,14 +108,15 @@ best_feature_func = feature_sets[best_feature]
 best_train_func = models[best_model_name]
 
 # Train on FULL dataset
-X_full_vec, _, best_vectorizer = best_feature_func(X, X)
-best_model = best_train_func(X_full_vec, y)
+X_train_final, X_test_final, y_train_final, y_test_final = train_test_split(X,y,test_size=0.2,stratify=y,random_state=42)
+Xtr_final, Xte_final, best_vectorizer = best_feature_func(X_train_final,X_test_final)
 
 # FINAL evaluation of BEST model
-final_accuracy, final_report, final_y_pred = evaluate(best_model, X_full_vec, y)
+best_model = best_train_func(Xtr_final, y_train_final)
+final_accuracy, final_report, final_y_pred = evaluate(best_model, Xte_final, y_test_final)
 
 # Save confusion matrix of BEST model
-plot_confusion_matrix(y,final_y_pred,f"Confusion Matrix ({best_feature} + {best_model_name})","report/figures/cm_best_model.png")
+plot_confusion_matrix(y_test_final, final_y_pred, f"Confusion Matrix ({best_feature} + {best_model_name})", "report/figures/cm_best_model.png")
 
 # Save full classification report of BEST model
 with open("report/figures/best_model_classification_report.txt", "w") as f:
